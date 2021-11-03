@@ -85,3 +85,73 @@ min_out = mean - std
 
 age = df[(df['age'] > max_out)|(df['age'] < min_out)]['age'].sum()
 # age = 473.5
+```
+
+
+
+
+## 연습문제 4
+- 이상치 찾기
+- 소수점이 있는 나이를 찾고 올림, 내림, 버림 했을 때 모두 이상치 'age' 평균을 구한 다음 더하라
+- 올림 `np.ceil()`, 내림 `np.floor()`, 버림 `np.trunc()`
+
+```python
+# 소수점 나이 찾기
+df = df[(df['age'] - np.floor(df['age'])) != 0]
+# df['age']에서 값을 반올림 내림한 값들을 빼면 소수점이 남는 값들만 남기 때문에 사용 
+
+# 올림
+m_ceil = np.ceil(df['age']).mean()
+# 내림
+m_floor = np.floor(df['age']).mean()
+# 버림
+m_trunc = np.trunc(df['age']).mean()
+
+print(m_ceil + m_floor + m_trunc)
+```
+
+
+## 연습문제 5
+
+- 결측치 처리
+
+- 주어진 데이터에서 결측치가 80%이상 되는 컬럼은(변수는) 삭제하고, 80% 미만인 결측치가 있는 컬럼은 'city'별 중앙값으로 값을 대체하고 'f1'컬럼의 평균값을 출력
+
+```python
+# data 확인
+df.isnull().sum()
+# id       0
+# age      0
+# city     0
+# f1      31
+# f2       0
+# f3      95
+# f4       0
+# f5       0
+# dtype: int64
+# df.shape()가 (100,8)이기 때문에 `f3`을 삭제해야 한다.
+```
+
+```python
+# 'f3' 칼럼 삭제
+df = df.drop('f3', axis = 1)
+
+# 데이터 확인
+df['city'].value_counts()
+# 경기    41
+# 대구    20
+# 서울    20
+# 부산    19
+# Name: city, dtype: int64
+```
+
+```python
+s = df[df['city'] == '서울']['f1'].median()
+d = df[df['city'] == '대구']['f1'].median()
+k = df[df['city'] == '경기']['f1'].median()
+b = df[df['city'] == '부산']['f1'].median()
+
+df['f1'] = df['f1'].fillna(df['city'].map({'서울':s, '대구':d, '경기':k, '부산':b}))
+print(df['f1'].mean()) # 65.52
+```
+
