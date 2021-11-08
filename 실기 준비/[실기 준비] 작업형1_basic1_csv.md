@@ -155,3 +155,28 @@ df['f1'] = df['f1'].fillna(df['city'].map({'서울':s, '대구':d, '경기':k, '
 print(df['f1'].mean()) # 65.52
 ```
 
+## 연습문제 6
+- 표준편차 구하기
+- 주어진 데이터 중 basic1.csv 에서 'f4' 컬럼 값이 'ENFJ', 'INFP'인 'f1'의 표준편차 차이를 절대값으로 구하시오
+
+※ 표준편차
+
+- 모표준편차 : Numpy로 계산시, 모집단의 표준 편차
+- 표본표준편차 : Pandas로 계산시, 표본의 표준 편차
+
+```python
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv('.../basic1.csv')
+df.head()
+```
+
+```python
+cond1 = df['f4'] == 'ENFJ'
+cond2 = df['f4'] == 'INFP'
+
+np.abs(df[cond1]['f1'] - df[cond2]['f1'])
+# 5.859621525876811
+```
+
