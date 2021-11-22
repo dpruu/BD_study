@@ -78,6 +78,8 @@ std1 - std2
 
 ```python
 std = np.std(df['age']) * 1.5
+# std = df['age'].std() * 1.5
+# 위와 같이 해도 가능
 mean = df['age'].mean()
 
 max_out = mean + std
