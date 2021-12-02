@@ -1,13 +1,11 @@
-## 자주 사용되는 라이브러리 정리
+# 시험 전에 한번 봐두기
 
-## 1. Pandas, Numpy
 
-```python
-import pandas as pd
-import Numpy as np
-```
 
-## 2. Scaling, Transforming and Encoding
+
+## 실기형 2 라이브러리
+
+### Scaling, Transforming and Encoding
 
 > **Scaling**
 >
@@ -40,9 +38,9 @@ df['col'] = minmax_scale(df['col'])
 scaler = MinMaxScaler()
 df['col'] = scaler.fit_transform(df[['col']])
 ```
-### 알아두기
+#### 알아두기
 
-#### 1. QuantileTransformer
+##### 1. QuantileTransformer
 
 ```python
 # QuantileTransformer : 1000개 분위를 사용해 데이터를 균등 분포
@@ -55,7 +53,7 @@ df = quantile.fit_transform(df)
 >
 > **output_distribution**  : 변환된 데이터의 한계 분포, {uniform, normal} 둘 중 하나로 설정 가능. 이때 normal로 지정시 정규 분포로 변환
 
-#### 2. PowerTransformer
+##### 2. PowerTransformer
 
 ```python
 from sklearn.preprocessing import PowerTransformer
@@ -72,8 +70,48 @@ df = power.fit_transform(df)
 
 
 
-## 모델 선정
-### 1. 분류 모델
+### 모델 선정
+```python
+from sklearn.model_selecion import train_test_split
+# training, test 데이터를 나누는 라이브러리
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, shuffle=True, stratify=X['col'])
+# 하이퍼파라미터
+# test_size : 테스트 셋 구성의 비율, default = 0.25
+# shuffle : split이전 데이터 섞을건지 여부, default = True
+# stratify : classification을 다룰 때 중요, class 비율을 train, 
+# 			 validation에 유지, default = None
+
+from sklearn.model_selecion import cross_val_score
+# 교차 검증 
+model = RandomForestClassifier()
+scores = cross_val_score(model, X=X_train, y=y_train, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+# 파라미터
+# estimator : 학습할 모델
+# cv : Fold의 수를 의미
+# scoring : 평가한 점수를 각각 교차 검증을 반복 시마다 기록해 돌려준다.
+# n_jobs : 병렬로 실행할 작업 수 (-1은 전부)
+
+from sklearn.model_selecion import GridSearchCV
+# 분류, 회귀 알고리즘에 사용되는 하이퍼파라미터를 순차적으로 입력해 학습 하고 측정을 하면서 가장 좋은 파라미터를 확인.
+gbr_search = GridSearchCV(gbr, param_grid=gbr_params, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+# 파라미터
+# param_grid : 튜닝을 위해 파라미터, 사용될 파라미터를 dict형태로 만들어서 넣는다
+# cv : 교차 검증에서 몇개로 분할되는지 지정
+# scoring : 예측 성능 평가 방법
+gbr_search.fit(X_train, y_train)
+best_mse = (-1) * gbr_search.best_score_
+best_rmse = np.sqrt(best_mse)
+
+gbr_final = GradientBoostingRegressor(**gbr_search.best_params_)
+gbr_final.fit(X_train, y_train)
+y_pred_gbr = gbr_final.predict(X_test)
+```
+
+> **cross_val_score**를 이용해 모델 선정 후 **GridSearchCV**를 이용해 파라미터 값 선정
+
+
+
+### 분류 모델
 
 > 각 모델의 하이퍼파라미터 생각이 안 날 경우 **help()** 함수 사용
 
@@ -126,9 +164,35 @@ md.fit(x_train,y_train)
 ```
 
 
-### 2. 회귀 모델
+
+### 회귀 모델
 
 ```python
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+# 파라미터
+# 'max_depth': 최대 깊이,  default : None, ex) [3, 5, 7, 9],
+# 'min_samples_split': 내부 노드를 분할하는 데 필요한 최소 샘플 수, default : 2, ex)[2, 3, 4, 5]
+# 'min_samples_leaf': 리프 노드에 있어야하는 최소 샘플 수 default : 2 ,ex)[1, 2, 3, 5],
 
+from sklearn.ensemble import RandomForestRegressor
+# 파라미터
+# 'n_estimators': 트리의 개수
+# 'max_depth': 트리 최대 깊이[3, 5, 7, 9],
+# 'min_samples_split': 내부 노드를 분할하는 데 필요한 최소 샘플 수
+# 'min_samples_leaf': 리프 노드에 있어야하는 최소 샘플 수
+
+
+from sklearn.ensemble import GradientBoostingRegressor
+# 파라미터
+# loss : 최적화활 손실함수 선택(default = 'ls')
+# 'learning_rate': 각 트리 기여도,(default = 0.1)[0.01, 0.05, 0.1],
+# 'n_estimators': 부스팅 간계의 수[50, 80, 100, 200, 300],
+
+from xgboost import XGBRegressor
+# 파리미터
+# n_estimators : 트리 개수
+# objective : "binary:logistic“, “reg:linear”“, “multi:softmax” = 이항 / 연속 / 다항 
+# max_depth : 트리의 최대 깊이
 ```
 
