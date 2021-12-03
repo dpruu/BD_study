@@ -72,7 +72,7 @@ df = power.fit_transform(df)
 
 ### 모델 선정
 ```python
-from sklearn.model_selecion import train_test_split
+from sklearn.model_selection import train_test_split
 # training, test 데이터를 나누는 라이브러리
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, shuffle=True, stratify=X['col'])
 # 하이퍼파라미터
@@ -81,7 +81,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, shuffl
 # stratify : classification을 다룰 때 중요, class 비율을 train, 
 # 			 validation에 유지, default = None
 
-from sklearn.model_selecion import cross_val_score
+from sklearn.model_selection import cross_val_score
 # 교차 검증 
 model = RandomForestClassifier()
 scores = cross_val_score(model, X=X_train, y=y_train, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
@@ -90,8 +90,11 @@ scores = cross_val_score(model, X=X_train, y=y_train, cv=5, scoring='neg_mean_sq
 # cv : Fold의 수를 의미
 # scoring : 평가한 점수를 각각 교차 검증을 반복 시마다 기록해 돌려준다.
 # n_jobs : 병렬로 실행할 작업 수 (-1은 전부)
+mse = (-1) * np.mean(scores) # negative mean squared error로 설정했으므로 -1을 곱해 부호를 맞춰줍니다.
+print('Model %s - RMSE: %.4f' % (name, np.sqrt(mse)))
 
-from sklearn.model_selecion import GridSearchCV
+
+from sklearn.model_selection import GridSearchCV
 # 분류, 회귀 알고리즘에 사용되는 하이퍼파라미터를 순차적으로 입력해 학습 하고 측정을 하면서 가장 좋은 파라미터를 확인.
 gbr_search = GridSearchCV(gbr, param_grid=gbr_params, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
 # 파라미터
